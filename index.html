@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>habitat — a robot that lives on a web page</title>
+<meta name="description" content="A procedurally animated robot for web pages. Jointed SVG rig, spring physics, and a small state machine that decides what he does with his day. No dependencies.">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23150f0d'/><rect x='24' y='30' width='52' height='40' rx='10' fill='%23f2cf4a'/><rect x='34' y='44' width='32' height='11' rx='5.5' fill='%2340f58a'/><rect x='46' y='14' width='8' height='16' rx='4' fill='%23f2cf4a'/><circle cx='50' cy='12' r='7' fill='%23b06cf5'/></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@10..48,400;10..48,600;10..48,800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="demo.css">
+</head>
+
+<body>
+<main>
+  <header class="head">
+    <h1>habitat</h1>
+    <p class="lede">
+      A robot who lives on a web page. He walks, jumps, gets picked up and thrown,
+      and when you leave him alone long enough he goes off and finds something to do.
+    </p>
+    <p class="meta">
+      <a href="https://github.com/JamesTRichmond/habitat">Source</a>
+      <span>·</span>
+      <a href="https://jamestrichmond.com/#habitat">Seen in the wild</a>
+      <span>·</span>
+      <span>No dependencies</span>
+    </p>
+  </header>
+
+  <div id="habitat"></div>
+
+  <div class="controls">
+    <div class="acts" id="acts" role="group" aria-label="Tell him what to do"></div>
+    <p class="hint">
+      <kbd>←</kbd><kbd>→</kbd> walk · <kbd>space</kbd> jump · drag him · click to say hi
+    </p>
+  </div>
+
+  <section class="prose">
+    <h2>How he works</h2>
+    <p>
+      He is not a sprite sheet. He is a jointed SVG rig — two segments per limb, so
+      knees and elbows actually bend — and every frame a state machine writes joint
+      angles into a pose object which is then applied to the DOM.
+    </p>
+    <p>
+      The life comes from four cheap things. Gravity and ground contact. A damped
+      spring on the antenna, so it lags going into a move and overshoots coming out
+      of one. Squash and stretch on landing, scaled by impact speed. And a pupil that
+      chases your cursor, with a blink on a random timer. That is most of the trick:
+      none of it is expensive, and all of it is the difference between a shape being
+      moved around and a thing that seems to be moving itself.
+    </p>
+
+    <h2>Using him</h2>
+<pre><code>import { createHabitat } from "./src/habitat.js";
+
+const habitat = createHabitat(document.querySelector("#habitat"));
+
+habitat.command("cook");   // or sleep, ride, climb, service, idle
+habitat.destroy();         // takes its listeners and its rAF loop with it</code></pre>
+    <p>
+      Give the host element a size and he fills it. He brings his own SVG, his own
+      gradients, and his own colors, so nothing is required of the page around him.
+      Pass <code>theme</code> to repaint him, <code>activities</code> to give him new
+      things to do, or <code>autonomy: false</code> if you would rather he only did
+      what he is told.
+    </p>
+
+    <h2>Adding something for him to do</h2>
+    <p>
+      An activity is a pose function and a mark to stand on. While one runs it owns
+      his transform outright, which is what keeps each one self-contained — this is
+      the whole of "he waves at the wall":
+    </p>
+<pre><code>wave: {
+  scene: "workshop", mark: 500, duration: 8, status: "waving",
+  pose(p, t) {
+    p.x = 500;
+    p.armF = -150 + Math.sin(t * 9) * 22;
+    p.elbowF = 26;
+    p.headR = -5;
+  },
+}</code></pre>
+    <p class="note">
+      Angles are degrees from hanging straight down. A limb at angle <em>t</em> points
+      along <code>(−sin t, cos t)</code>. Once he is rotated −90° to lie down that
+      becomes <code>(cos t, sin t)</code> on stage, so 0 runs toward his feet and −90
+      is straight up. Getting that backwards is how you put a robot's arm through the
+      floor, which is a thing that happened here more than once.
+    </p>
+  </section>
+
+  <footer class="foot">
+    <p>MIT. Built by <a href="https://jamestrichmond.com">James Richmond</a>.</p>
+  </footer>
+</main>
+
+<script type="module">
+  import { createHabitat } from "./src/habitat.js";
+
+  const host = document.querySelector("#habitat");
+  const bar = document.querySelector("#acts");
+  const buttons = [];
+
+  // onState fires once during construction, so the buttons have to exist first.
+  const habitat = createHabitat(host, {
+    onState(name) {
+      for (const b of buttons) b.setAttribute("aria-pressed", String(b.dataset.act === name));
+    },
+  });
+
+  for (const name of ["idle", ...habitat.activities]) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "act";
+    b.dataset.act = name;
+    b.textContent = name === "service" ? "oil change" : name;
+    b.addEventListener("click", () => habitat.command(name));
+    bar.appendChild(b);
+    buttons.push(b);
+  }
+  window.habitat = habitat;   // handy from the console
+</script>
+</body>
+</html>
