@@ -1,0 +1,144 @@
+/* Demo page chrome. The robot brings his own styling; this is just the room. */
+
+:root {
+  color-scheme: dark;
+  --bg: #120d0b;
+  --panel: #1c1512;
+  --ink: #f3ece3;
+  --dim: #ab9683;
+  --accent: #f2cf4a;
+  --line: rgba(140, 112, 90, 0.32);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: clamp(1.5rem, 5vw, 4rem) 1.25rem 4rem;
+  background:
+    radial-gradient(80vh 55vh at 80% -8%, rgba(176, 108, 245, 0.12), transparent 62%),
+    radial-gradient(70vh 50vh at 5% 4%, rgba(242, 207, 74, 0.10), transparent 58%),
+    var(--bg);
+  color: var(--ink);
+  font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(1rem, 0.95rem + 0.2vw, 1.06rem);
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+main { max-width: 60rem; margin-inline: auto; }
+
+h1 {
+  margin: 0 0 0.6rem;
+  font-size: clamp(2.6rem, 1.6rem + 5vw, 4.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+h2 {
+  margin: 2.6rem 0 0.7rem;
+  font-size: clamp(1.25rem, 1.1rem + 0.7vw, 1.6rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.lede { margin: 0 0 1rem; max-width: 46ch; color: var(--dim); font-size: 1.1em; }
+
+.meta {
+  margin: 0 0 1.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.8rem;
+  color: var(--dim);
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+a:hover { color: var(--ink); }
+
+/* The robot's room. He fills whatever box he is given. */
+#habitat {
+  aspect-ratio: 12 / 5;
+  min-height: 260px;
+  max-height: 60vh;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+@media (width < 46rem) {
+  #habitat { aspect-ratio: auto; height: min(44vh, 300px); min-height: 200px; }
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem 1.4rem;
+  margin-block: 0.9rem 0;
+}
+
+.acts { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.act {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.76rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--dim);
+  cursor: pointer;
+  transition: color 0.18s, border-color 0.18s, transform 0.15s;
+}
+.act:hover { color: var(--ink); border-color: var(--accent); transform: translateY(-1px); }
+.act[aria-pressed="true"] { background: var(--accent); border-color: transparent; color: #241a10; }
+
+.hint {
+  margin: 0;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.74rem;
+  color: var(--dim);
+}
+
+kbd {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.9em;
+  padding: 0.1em 0.4em;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.prose { max-width: 62ch; }
+.prose p { color: var(--dim); }
+.prose .note { font-size: 0.94em; }
+.prose code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.88em; color: var(--ink); }
+
+pre {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+pre code { color: var(--ink); }
+
+.foot {
+  margin-top: 3.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.8rem;
+  color: var(--dim);
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .act:hover { transform: none; }
+}
